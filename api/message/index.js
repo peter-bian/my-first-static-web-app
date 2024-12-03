@@ -19,13 +19,13 @@ module.exports = async function (context, req) {
         });
 
         // 先獲取總記錄數
-        const [countResult] = await connection.execute('SELECT COUNT(*) as total FROM data_module_record');
+        const [countResult] = await connection.execute('SELECT COUNT(*) as total FROM mytestpersontable');
         const totalRecords = countResult[0].total;
 
         // 分頁查詢數據
         const [rows] = await connection.execute(
-            'SELECT * FROM data_module_record LIMIT ? OFFSET ?',
-            [pageSize, offset]
+            'SELECT * FROM mytestpersontable ORDER BY id LIMIT ? OFFSET ?',
+            [parseInt(pageSize), parseInt(offset)]
         );
         
         // 關閉連接
