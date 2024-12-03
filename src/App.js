@@ -20,29 +20,31 @@ function App() {
     })();
   }, []);
 
-  if (error) return <div>錯誤: {error}</div>;
+  if (error) return <div className="error">錯誤: {error}</div>;
   
   return (
     <div>
       <h1>人員列表</h1>
-      <table>
-        <thead>
-          <tr>
-            {data.length > 0 && Object.keys(data[0]).map(key => (
-              <th key={key}>{key}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((row, index) => (
-            <tr key={index}>
-              {Object.values(row).map((value, i) => (
-                <td key={i}>{value}</td>
+      <div className="table-container">
+        <table>
+          <thead>
+            <tr>
+              {data.length > 0 && Object.keys(data[0]).map(key => (
+                <th key={key}>{key}</th>
               ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {data.map((row, index) => (
+              <tr key={index}>
+                {Object.values(row).map((value, i) => (
+                  <td key={i}>{value}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
