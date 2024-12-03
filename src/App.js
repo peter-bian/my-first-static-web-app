@@ -4,17 +4,15 @@ function App() {
   const [data, setData] = useState([]);
   const [error, setError] = useState(null);
   const [isTableVisible, setIsTableVisible] = useState(false);
-  const [pagination, setPagination] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const fetchModuleRecords = async (page = 1) => {
+  const fetchCompanyTrainingTime = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/message?page=${page}`);
+      const response = await fetch('/api/message');
       const result = await response.json();
       if (result.status === 200) {
         setData(result.data);
-        setPagination(result.pagination);
         setIsTableVisible(true);
       } else {
         setError(result.message);
@@ -26,91 +24,17 @@ function App() {
     }
   };
 
-  const handlePageChange = (newPage) => {
-    fetchModuleRecords(newPage);
-  };
-
-  const renderPagination = () => {
-    if (!pagination) return null;
-
-    const { currentPage, totalPages } = pagination;
-    const pageNumbers = [];
-    
-    // 計算要顯示的頁碼範圍
-    let startPage = Math.max(1, currentPage - 2);
-    let endPage = Math.min(totalPages, currentPage + 2);
-
-    // 確保始終顯示5個頁碼（如果有）
-    if (endPage - startPage < 4) {
-      if (startPage === 1) {
-        endPage = Math.min(5, totalPages);
-      } else {
-        startPage = Math.max(1, totalPages - 4);
-      }
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      pageNumbers.push(i);
-    }
-
-    return (
-      <div className="pagination">
-        <button 
-          className="page-button"
-          onClick={() => handlePageChange(1)}
-          disabled={currentPage === 1}
-        >
-          首頁
-        </button>
-        <button
-          className="page-button"
-          onClick={() => handlePageChange(currentPage - 1)}
-          disabled={currentPage === 1}
-        >
-          上一頁
-        </button>
-        {pageNumbers.map(number => (
-          <button
-            key={number}
-            className={`page-button ${number === currentPage ? 'active' : ''}`}
-            onClick={() => handlePageChange(number)}
-          >
-            {number}
-          </button>
-        ))}
-        <button
-          className="page-button"
-          onClick={() => handlePageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
-        >
-          下一頁
-        </button>
-        <button
-          className="page-button"
-          onClick={() => handlePageChange(totalPages)}
-          disabled={currentPage === totalPages}
-        >
-          末頁
-        </button>
-        <span className="page-info">
-          共 {pagination.totalRecords} 條記錄，
-          第 {currentPage}/{totalPages} 頁
-        </span>
-      </div>
-    );
-  };
-
   return (
     <div className="container">
-      <h1>數據查詢系統</h1>
+      <h1>公司訓練時間統計</h1>
       
       <div className="button-group">
         <button 
           className="query-button"
-          onClick={() => fetchModuleRecords(1)}
+          onClick={fetchCompanyTrainingTime}
           disabled={loading}
         >
-          查詢模塊記錄
+          查詢公司訓練時間
         </button>
       </div>
 
@@ -119,26 +43,25 @@ function App() {
       
       {isTableVisible && data.length > 0 && (
         <div className="table-container">
-          <h2>模塊記錄數據</h2>
+          <h2>訓練時間統計</h2>
           <table>
             <thead>
               <tr>
-                {Object.keys(data[0]).map(key => (
-                  <th key={key}>{key}</th>
-                ))}
+                <th>公司ID</th>
+                <th>總訓練記錄數</th>
+                <th>總訓練時間</th>
               </tr>
             </thead>
             <tbody>
               {data.map((row, index) => (
                 <tr key={index}>
-                  {Object.values(row).map((value, i) => (
-                    <td key={i}>{value}</td>
-                  ))}
+                  <td>{row.company_id}</td>
+                  <td>{row.total_records}</td>
+                  <td>{row.training_time}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-          {renderPagination()}
         </div>
       )}
     </div>

@@ -2,11 +2,6 @@ const mysql = require('mysql2/promise');
 
 module.exports = async function (context, req) {
     try {
-        // 獲取頁碼和每頁數量參數
-        const page = parseInt(req.query.page) || 1;
-        const pageSize = 100;
-        const offset = (page - 1) * pageSize;
-
         // 創建數據庫連接
         const connection = await mysql.createConnection({
             host: 'vtm-db.mysql.database.azure.com',
@@ -18,15 +13,34 @@ module.exports = async function (context, req) {
             }
         });
 
-        // 先獲取總記錄數
-        const [countResult] = await connection.execute('SELECT COUNT(*) as total FROM mytestpersontable');
-        const totalRecords = countResult[0].total;
+        // 查詢並計算每個公司的總訓練時間
+        const [rows] = await connection.execute(`
+            SELECT 
+                company_id,
+                COUNT(DISTINCT record_id) as total_records,
+                SUM(TIMESTAMPDIFF(MINUTE, start_time, finish_time)) as total_minutes
+            FROM data_module_record 
+            WHERE start_time IS NOT NULL 
+            AND finish_time IS NOT NULL 
+            AND finish_time > start_time
+            GROUP BY company_id 
+            HAVING total_minutes > 0
+            ORDER BY total_minutes DESC
+        `);
 
-        // 分頁查詢數據
-        const [rows] = await connection.execute(
-            'SELECT * FROM mytestpersontable ORDER BY id LIMIT ? OFFSET ?',
-            [parseInt(pageSize), parseInt(offset)]
-        );
+        // 處理數據，將分鐘轉換為小時和分鐘
+        const processedData = rows.map(row => {
+            const totalMinutes = parseInt(row.total_minutes);
+            const hours = Math.floor(totalMinutes / 60);
+            const minutes = totalMinutes % 60;
+            
+            return {
+                company_id: row.company_id,
+                total_records: row.total_records,
+                training_time: `${hours}小時${minutes}分鐘`,
+                total_minutes: totalMinutes // 用於排序
+            };
+        });
         
         // 關閉連接
         await connection.end();
@@ -34,13 +48,7 @@ module.exports = async function (context, req) {
         // 返回數據
         context.res.json({
             status: 200,
-            data: rows,
-            pagination: {
-                currentPage: page,
-                pageSize: pageSize,
-                totalRecords: totalRecords,
-                totalPages: Math.ceil(totalRecords / pageSize)
-            }
+            data: processedData
         });
 
     } catch (error) {
