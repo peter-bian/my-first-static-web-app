@@ -45,9 +45,24 @@ function App() {
     }
   };
 
+  // 圖表數據
+  const chartData = {
+    labels: data.map(item => `公司 ${item.company_id}`),
+    datasets: [
+      {
+        label: '訓練時間（分鐘）',
+        data: data.map(item => item.total_minutes),
+        backgroundColor: 'rgba(74, 144, 226, 0.5)',
+        borderColor: 'rgba(74, 144, 226, 1)',
+        borderWidth: 1,
+      }
+    ]
+  };
+
   // 圖表配置
   const chartOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: 'top',
@@ -81,24 +96,10 @@ function App() {
       x: {
         title: {
           display: true,
-          text: '公司ID'
+          text: '公司'
         }
       }
     }
-  };
-
-  // 準備圖表數據
-  const chartData = {
-    labels: data.map(item => item.company_id),
-    datasets: [
-      {
-        label: '訓練時間',
-        data: data.map(item => item.total_minutes),
-        backgroundColor: 'rgba(74, 144, 226, 0.6)',
-        borderColor: 'rgba(74, 144, 226, 1)',
-        borderWidth: 1,
-      }
-    ]
   };
 
   const toggleView = () => {
