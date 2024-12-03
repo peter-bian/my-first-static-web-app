@@ -2,6 +2,11 @@ const mysql = require('mysql2/promise');
 
 module.exports = async function (context, req) {
     try {
+        // 獲取頁碼和每頁數量參數
+        const page = parseInt(req.query.page) || 1;
+        const pageSize = 100;
+        const offset = (page - 1) * pageSize;
+
         // 創建數據庫連接
         const connection = await mysql.createConnection({
             host: 'vtm-db.mysql.database.azure.com',
@@ -13,8 +18,15 @@ module.exports = async function (context, req) {
             }
         });
 
-        // 執行查詢
-        const [rows] = await connection.execute('SELECT * FROM data_module_record');
+        // 先獲取總記錄數
+        const [countResult] = await connection.execute('SELECT COUNT(*) as total FROM data_module_record');
+        const totalRecords = countResult[0].total;
+
+        // 分頁查詢數據
+        const [rows] = await connection.execute(
+            'SELECT * FROM data_module_record LIMIT ? OFFSET ?',
+            [pageSize, offset]
+        );
         
         // 關閉連接
         await connection.end();
@@ -22,7 +34,13 @@ module.exports = async function (context, req) {
         // 返回數據
         context.res.json({
             status: 200,
-            data: rows
+            data: rows,
+            pagination: {
+                currentPage: page,
+                pageSize: pageSize,
+                totalRecords: totalRecords,
+                totalPages: Math.ceil(totalRecords / pageSize)
+            }
         });
 
     } catch (error) {
