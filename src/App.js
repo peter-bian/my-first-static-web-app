@@ -5,7 +5,6 @@ function App() {
   const [error, setError] = useState(null);
   const [isTableVisible, setIsTableVisible] = useState(false);
   const [pagination, setPagination] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);
 
   const fetchModuleRecords = async (page = 1) => {
@@ -17,7 +16,6 @@ function App() {
         setData(result.data);
         setPagination(result.pagination);
         setIsTableVisible(true);
-        setCurrentPage(page);
       } else {
         setError(result.message);
       }
