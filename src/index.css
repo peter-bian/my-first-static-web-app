@@ -156,3 +156,36 @@ tbody tr:last-child td {
   color: #4a90e2;
   font-weight: bold;
 }
+
+.view-toggle-button {
+  padding: 12px 24px;
+  font-size: 1.1em;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.view-toggle-button:hover {
+  background-color: #218838;
+}
+
+.view-toggle-button:active {
+  background-color: #1e7e34;
+}
+
+.chart-container {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  margin-top: 20px;
+  height: 400px;
+}
+
+.data-container {
+  max-width: 100%;
+  margin: 0 auto;
+}
