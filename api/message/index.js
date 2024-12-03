@@ -14,7 +14,7 @@ module.exports = async function (context, req) {
         });
 
         // 執行查詢
-        const [rows] = await connection.execute('SELECT * FROM mytestpersontable');
+        const [rows] = await connection.execute('SELECT * FROM data_module_record');
         
         // 關閉連接
         await connection.end();
